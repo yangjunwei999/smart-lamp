@@ -1,0 +1,3 @@
+# Fix: make (launched by Eclipse) drops/corrupts PATH for sh children when the
+# inherited user PATH contains non-ASCII entries. Provide a clean minimal ASCII PATH.
+export PATH := C:/ST/STM32CubeIDE_1.19.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344/tools/bin;C:/ST/STM32CubeIDE_1.19.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.make.win32_2.2.0.202409170845/tools/bin;C:/Windows/System32;C:/Windows
