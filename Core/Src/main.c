@@ -50,9 +50,12 @@
 
 /* 温柔唤醒时序 */
 #define WAKE_TOTAL_MS      30000U /* 30 秒渐亮 */
-#define WAKE_CHIRP_MS      10000U /* 最后 10 秒轻声鸣叫 */
-#define WAKE_CHIRP_GAP_MS  2000U  /* 鸣叫间隔 */
 #define WAKE_CHIRP_LEN_MS  60U    /* 单次鸣叫时长 */
+#define WAKE_CHIRP_COUNT   3U     /* 尾段共 3 声轻鸣 */
+
+/* 尾段三声轻鸣的起始时刻（相对唤醒起点）：20.0s / 24.0s / 28.5s
+   间隔 4.0s -> 4.5s，逐渐放缓：越到后面越舍不得叫你 */
+static const uint16_t WAKE_CHIRP_AT_MS[WAKE_CHIRP_COUNT] = { 20000U, 24000U, 28500U };
 
 /* 火警闪烁节拍 */
 #define FIRE_HALF_MS       250U  /* 亮 250ms / 灭 250ms => 2Hz 快闪 */
@@ -310,7 +313,7 @@ int main(void)
   int8_t    breathDir = 1;           /* 呼吸方向 */
   uint32_t  lastTick = HAL_GetTick();    /* 10ms 光效节拍 */
   uint32_t  lastFire = HAL_GetTick();    /* 火警闪烁节拍 */
-  uint32_t  nextChirp = 0U;          /* 唤醒鸣叫时刻表 */
+  uint8_t   chirpIndex = 0U;         /* 轻鸣序号 0-2（尾段共 3 声） */
   uint32_t  chirpUntil = 0U;         /* 鸣叫截止时刻 */
   (void)modeBeforeWake;
 
@@ -350,7 +353,7 @@ int main(void)
           modeBeforeWake = mode;
           state = ST_WAKE;
           effectStart = now;
-          nextChirp = now + (WAKE_TOTAL_MS - WAKE_CHIRP_MS);
+          chirpIndex = 0U;
           chirpUntil = 0U;
         }
       } else if (e1 == KEVT_SHORT) {
@@ -462,13 +465,14 @@ int main(void)
             Lamp_SetRGB((uint8_t)((uint32_t)PWM_MAX * pct / 100U),
                         (uint8_t)((uint32_t)PWM_MAX * pct * gRatio / 10000U),
                         (uint8_t)((uint32_t)PWM_MAX * pct * bRatio / 10000U));
-            /* 最后 10 秒：每 2 秒轻声鸣叫 60ms（3kHz 柔和短啾）*/
+            /* 尾段 3 声轻鸣：20.0s / 24.0s / 28.5s，每声 60ms、3kHz
+               间隔 4.0s -> 4.5s 逐渐放缓，避免像闹钟那样机械重复 */
             if (chirpUntil != 0U && now >= chirpUntil) {
               chirpUntil = 0U;
               Buzzer_Off();
             }
-            if ((t >= (WAKE_TOTAL_MS - WAKE_CHIRP_MS)) && (now >= nextChirp)) {
-              nextChirp = now + WAKE_CHIRP_GAP_MS;
+            if ((chirpIndex < WAKE_CHIRP_COUNT) && (t >= WAKE_CHIRP_AT_MS[chirpIndex])) {
+              chirpIndex++;
               chirpUntil = now + WAKE_CHIRP_LEN_MS;
               Buzzer_Set(3000U, 10U);
             }
