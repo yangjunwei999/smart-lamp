@@ -263,14 +263,17 @@ SMART_LAMP/
 │   │   └── stm32f1xx_it.c       中断入口（SysTick）
 │   └── Startup/                 启动文件
 ├── Drivers/                     STM32F1xx HAL + CMSIS（ST 官方）
-├── Debug/                       Debug 编译产物（含 SMART_LAMP.elf）
-├── Release/                     Release 编译产物
+├── Debug/                       本地编译产物（已 .gitignore，不随仓库分发）
+├── Release/                     本地编译产物（同上）
 ├── SMART_LAMP.ioc               CubeMX 工程配置
 ├── STM32F103C8TX_FLASH.ld       链接脚本
 ├── 一键烧录.bat                 ST-Link 命令行烧录
-├── .temp/                       历史 README 备份（不参与编译）
+├── .temp/                       历史 README 备份（已 .gitignore）
 └── Readme.md                    本文件
 ```
+
+> 仓库只收录**源码、文档与工程配置**（`Core/`、`Drivers/`、`.ioc`、`.cproject`、`.project`、链接脚本、烧录脚本、README）。
+> `Debug/`、`Release/` 是本机编译输出，已写入 `.gitignore`，**不随仓库分发**；需要固件时在 CubeIDE 里 `Ctrl+B` 生成，或用 `一键烧录.bat` 烧录。
 
 ---
 

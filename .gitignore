@@ -10,6 +10,10 @@
 /obj
 /out
 
+# CubeIDE build output (repo stays source-only)
+/Debug/
+/Release/
+
 # eide template
 *.ept
 *.eide-template
